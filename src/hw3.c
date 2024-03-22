@@ -130,18 +130,47 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
     else {
         return game;
     }
-    built_word[char_idx] = '\0';
+    
+    if (direction == 'H') {
+        int start = col;
+        while (start > 0 && game->board[row][start - 1] != '.') {
+            start--;
+        }
+
+        int end = col + tiles_len - 1;
+        while (end < game->columns - 1 && game->board[row][end + 1] != '.') {
+            end++;
+        }
+
+        strncpy(built_word, &game->board[row][start], end - start + 1);
+        built_word[end - start + 1] = '\0';
+    } else if (direction == 'V') {
+        int start = row;
+        while (start > 0 && game->board[start - 1][col] != '.') {
+            start--;
+        }
+
+        int end = row + tiles_len - 1;
+        while (end < game->rows - 1 && game->board[end + 1][col] != '.') {
+            end++;
+        }
+
+        for (int i = start; i <= end; i++) {
+            built_word[char_idx++] = game->board[i][col];
+        }
+        built_word[char_idx] = '\0';
+    }
 
     if (!legal_word(built_word)) {
         //implement undo later
         return game;
     }
 
-    /* printf("%s %d", built_word, strlen(built_word));
+    //printf("%s %d", built_word, strlen(built_word));
 
-    printf("\n");
+    //printf("\n");
 
-    for (int i = 0; i < game->rows; i++) {
+    /* for (int i = 0; i < game->rows; i++) {
         for (int j = 0; j < game->columns; j++) {
             printf("%c", game->board[i][j]);
         }
@@ -158,6 +187,8 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
     } */
 
     *num_tiles_placed = place_count;
+
+    free(built_word);
     return game;
 }
 
@@ -266,8 +297,8 @@ int legal_word(char *word) {
 
 /* int main(void) {
     int num = 0;
-    GameState *game = initialize_game_state("board01.txt");
-    place_tiles(game, 3, 2, 'H', "T Z E", &num);
+    GameState *game = initialize_game_state("board08.txt");
+    place_tiles(game, 6, 12, 'H', " ROID", &num);
 
     return 0;
 } */
