@@ -9,7 +9,7 @@
 #define DEBUG(...) fprintf(stderr, "[          ] [ DEBUG ] "); fprintf(stderr, __VA_ARGS__); fprintf(stderr, " -- %s()\n", __func__)
 
 void change_size(GameState *game, int r, int c);
-int legal_word(const char *word);
+int legal_word(char *word);
 
 GameState *g;
 FILE *words_file;
@@ -73,14 +73,12 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
     const char *tiles_ref = tiles;
     int place_count = 0;
 
-    if (!legal_word(tiles)) {
-        return game;
-    }
-
     if ((row < 0) || (col < 0) || (row >= game->rows) || (col >= game->columns)) {
         return game;
     }
 
+    char *built_word = malloc(64 * sizeof(char));
+    int char_idx = 0;
     if (direction == 'H') {
         for (int i = col; i <= col + tiles_len - 1; i++) {
             if (i >= game->columns) {
@@ -88,11 +86,13 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
             }
 
             if (*tiles_ref == ' ') {
+                built_word[char_idx++] = (game->board)[row][i];
                 tiles_ref++;
                 continue;
             }
 
             (game->board)[row][i] = *tiles_ref;
+            built_word[char_idx++] = *tiles_ref;
             (game->height)[row][i]++;
             tiles_ref++;
             place_count++;
@@ -110,11 +110,13 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
             }
 
             if (*tiles_ref == ' ') {
+                built_word[char_idx++] = (game->board)[i][col];
                 tiles_ref++;
                 continue;
             }
             
             (game->board)[i][col] = *tiles_ref;
+            built_word[char_idx++] = *tiles_ref;
             (game->height)[i][col]++;
             tiles_ref++;
             place_count++;
@@ -128,8 +130,18 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
     else {
         return game;
     }
+    built_word[char_idx] = '\0';
 
-    /* for (int i = 0; i < game->rows; i++) {
+    if (!legal_word(built_word)) {
+        //implement undo later
+        return game;
+    }
+
+    /* printf("%s %d", built_word, strlen(built_word));
+
+    printf("\n");
+
+    for (int i = 0; i < game->rows; i++) {
         for (int j = 0; j < game->columns; j++) {
             printf("%c", game->board[i][j]);
         }
@@ -220,12 +232,9 @@ void change_size(GameState *game, int r, int c) {
     game->height = new_height;
 }
 
-int legal_word(const char *word) {
+int legal_word(char *word) {
     words_file = fopen("./tests/words.txt", "r");
-    if (words_file == NULL) {
-        printf("Could not open file words.txt\n");
-        return 0;
-    }
+    //words_file = fopen("words.txt", "r");
 
     char *line = malloc(64 * sizeof(char));
 
@@ -257,8 +266,8 @@ int legal_word(const char *word) {
 
 /* int main(void) {
     int num = 0;
-    GameState *game = initialize_game_state("board02.txt");
-    place_tiles(game, 7, 2, 'V', "HELLO", &num);
+    GameState *game = initialize_game_state("board01.txt");
+    place_tiles(game, 3, 2, 'H', "T Z E", &num);
 
     return 0;
 } */
