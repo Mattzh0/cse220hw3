@@ -13,6 +13,7 @@ int legal_word(const char *word);
 
 GameState *g;
 FILE *words_file;
+FILE *output_file;
 
 GameState* initialize_game_state(const char *filename) {
     int file_height = 0;
@@ -154,8 +155,25 @@ void free_game_state(GameState *game) {
 }
 
 void save_game_state(GameState *game, const char *filename) {
-    (void)game;
-    (void)filename;
+    output_file = fopen(filename, "w");
+
+    for (int i = 0; i < game->rows; i++) {
+        for (int j = 0; j < game->columns; j++) {
+            fprintf(output_file, "%c", game->board[i][j]);
+        }
+        fprintf(output_file, "\n");
+    }
+
+    fprintf(output_file, "\n");
+
+    for (int i = 0; i < game->rows; i++) {
+        for (int j = 0; j < game->columns; j++) {
+            fprintf(output_file, "%d", game->height[i][j]);
+        }
+        fprintf(output_file, "\n");
+    }
+
+    fclose(output_file);
 }
 
 void change_size(GameState *game, int r, int c) {
