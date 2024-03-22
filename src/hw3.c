@@ -130,6 +130,8 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
     else {
         return game;
     }
+
+    char_idx = 0;
     
     if (direction == 'H') {
         int start = col;
@@ -144,7 +146,8 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
 
         strncpy(built_word, &game->board[row][start], end - start + 1);
         built_word[end - start + 1] = '\0';
-    } else if (direction == 'V') {
+    } 
+    else if (direction == 'V') {
         int start = row;
         while (start > 0 && game->board[start - 1][col] != '.') {
             start--;
@@ -297,8 +300,8 @@ int legal_word(char *word) {
 
 /* int main(void) {
     int num = 0;
-    GameState *game = initialize_game_state("board08.txt");
-    place_tiles(game, 6, 12, 'H', " ROID", &num);
+    GameState *game = initialize_game_state("board01.txt");
+    place_tiles(game, 0, 5, 'V', "ABS NCE", &num);
 
     return 0;
 } */
