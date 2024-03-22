@@ -38,22 +38,26 @@ GameState* initialize_game_state(const char *filename) {
         board_data[i] = malloc(file_width * sizeof(char));
     }
 
+    int **height = calloc(file_height, sizeof(int *));
+    for (int i = 0; i < file_height; i++) {
+        height[i] = calloc(file_width, sizeof(int));
+    }
+
     int row = 0, col = 0;
     while ((ch = fgetc(input_file)) != EOF) {
         if (ch == '\n') {
             row++;
             col = 0;
         } else {
+            if (ch != '.') {
+                height[row][col] = 1;
+            }
             board_data[row][col] = ch;
             col++;
         }
     }
     fclose(input_file);
 
-    int **height = calloc(file_height, sizeof(int *));
-    for (int i = 0; i < file_height; i++) {
-        height[i] = calloc(file_width, sizeof(int));
-    }
 
     g = malloc(sizeof(GameState));
     g->rows = file_height;
