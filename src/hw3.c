@@ -77,7 +77,6 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
     int tiles_len = strlen(tiles);
     const char *tiles_ref = tiles;
     int place_count = 0;
-    int similarity_count = 0;
 
     if ((row < 0) || (col < 0) || (row >= game->rows) || (col >= game->columns)) {
         free_game_state(copy);
@@ -85,8 +84,8 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
     }
 
     if (empty_board && tiles_len < 2) {
-        free_game_state(copy);
-        return game;
+        free_game_state(game);
+        return copy;
     }
 
     if (direction == 'H') {
@@ -96,13 +95,13 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
             }
 
             if (*tiles_ref == ' ') {
-                similarity_count++;
                 tiles_ref++;
                 continue;
             }
 
             if ((game->board)[row][i] == *tiles_ref) {
-                similarity_count++;
+                free(game);
+                return copy;
             }
             (game->board)[row][i] = *tiles_ref;
             (game->height)[row][i]++;
@@ -122,13 +121,13 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
             }
 
             if (*tiles_ref == ' ') {
-                similarity_count++;
                 tiles_ref++;
                 continue;
             }
 
             if ((game->board)[i][col] == *tiles_ref) {
-                similarity_count++;
+                free(game);
+                return(copy);
             }
             (game->board)[i][col] = *tiles_ref;
             (game->height)[i][col]++;
@@ -256,27 +255,6 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
             }
         }
     }
-
-    if (similarity_count == tiles_len) {
-        free_game_state(game);
-        free(built_word_horizontal);
-        free(built_word_vertical);
-        return copy;
-    }
-
-    /* for (int i = 0; i < game->rows; i++) {
-        for (int j = 0; j < game->columns; j++) {
-            printf("%c", game->board[i][j]);
-        }
-        printf("\n");
-    }
-    printf("\n");
-    for (int i = 0; i < game->rows; i++) {
-        for (int j = 0; j < game->columns; j++) {
-            printf("%d", game->height[i][j]);
-        }
-        printf("\n");
-    } */
 
     *num_tiles_placed = place_count;
     free(built_word_horizontal);
@@ -410,8 +388,8 @@ void copy_game_state() {
 
 /* int main(void) {
     int num = 0;
-    GameState *game = initialize_game_state("board02.txt");
-    game = place_tiles(game, 0, 0, 'H', "I", &num);
+    GameState *game = initialize_game_state("board04.txt");
+    game = place_tiles(game, 6, 14, 'H', "ER", &num);
     save_game_state(game, "actual_output.txt");
     return 0;
 } */
