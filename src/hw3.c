@@ -152,8 +152,8 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
 
     char *built_word_horizontal = malloc(256 * sizeof(char));
     char *built_word_vertical = malloc(256 * sizeof(char));
-    built_word_horizontal[0] = ' ';
-    built_word_vertical[0] = ' ';
+    memset(built_word_horizontal, '\0', 256);
+    memset(built_word_vertical, '\0', 256);
     int char_idx_horizontal = 0;
     int char_idx_vertical = 0;
     if (direction == 'H') {
