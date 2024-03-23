@@ -387,6 +387,7 @@ GameState* copy_game_state(GameState *game) {
         copy->height[i] = malloc(copy->columns * sizeof(int));
         memcpy(copy->height[i], game->height[i], copy->columns * sizeof(int));
     }
+    free(game);
     return copy;
 }
 
