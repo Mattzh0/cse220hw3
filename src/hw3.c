@@ -22,7 +22,8 @@ GameState* initialize_game_state(const char *filename) {
     int file_width = 0;
     int file_length = 0;
     char ch;
-    
+
+    g = malloc(sizeof(GameState));
     g->is_empty = 1;
 
     FILE *input_file = fopen(filename, "r");
@@ -63,13 +64,10 @@ GameState* initialize_game_state(const char *filename) {
     }
     fclose(input_file);
 
-
-    g = malloc(sizeof(GameState));
     g->rows = file_height;
     g->columns = file_width;
     g->board = board_data;
     g->height = height;
-
     return g;
 }
 
@@ -85,7 +83,7 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
         return game;
     }
 
-    if (g->is_empty && tiles_len < 2) {
+    if (game->is_empty && tiles_len < 2) {
         free_game_state(game);
         return copy;
     }
@@ -257,6 +255,7 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
             }
         }
     }
+    game->is_empty = 0;
     *num_tiles_placed = place_count;
     free(built_word_horizontal);
     free(built_word_vertical);
@@ -379,6 +378,7 @@ void copy_game_state() {
     copy->columns = g->columns;
     copy->board = malloc(copy->rows * sizeof(char*));
     copy->height = malloc(copy->rows * sizeof(int*));
+    copy->is_empty = g->is_empty;
     for (int i = 0; i < copy->rows; i++) {
         copy->board[i] = malloc(copy->columns * sizeof(char));
         memcpy(copy->board[i], g->board[i], copy->columns * sizeof(char));
