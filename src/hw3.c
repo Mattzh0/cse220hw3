@@ -164,19 +164,19 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
                 continue;
             }
 
-            int start = row;
-            while (start > 0 && game->board[start - 1][i] != '.') {
-                start--;
+            int s = row;
+            while (s > 0 && game->board[s - 1][i] != '.') {
+                s--;
             }
 
-            int end = row;
-            while (end < game->rows - 1 && game->board[end + 1][i] != '.') {
-                end++;
+            int e = row;
+            while (e < game->rows - 1 && game->board[e + 1][i] != '.') {
+                e++;
             }
 
-            if (end - start > 0) {
+            if (e - s > 0) {
                 char_idx_vertical = 0;
-                for (int j = start; j <= end; j++) {
+                for (int j = s; j <= e; j++) {
                     built_word_vertical[char_idx_vertical++] = game->board[j][i];
                 }
                 built_word_vertical[char_idx_vertical] = '\0';
@@ -218,19 +218,19 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
                 continue;
             }
 
-            int start = col;
-            while (start > 0 && game->board[i][start - 1] != '.') {
-                start--;
+            int s = col;
+            while (s > 0 && game->board[i][s - 1] != '.') {
+                s--;
             }
 
-            int end = col;
-            while (end < game->columns - 1 && game->board[i][end + 1] != '.') {
-                end++;
+            int e = col;
+            while (e < game->columns - 1 && game->board[i][e + 1] != '.') {
+                e++;
             }
 
-            if (end - start > 0) {
+            if (e - s > 0) {
                 char_idx_horizontal = 0;
-                for (int j = start; j <= end; j++) {
+                for (int j = s; j <= e; j++) {
                     built_word_horizontal[char_idx_horizontal++] = game->board[i][j];
                 }
                 built_word_horizontal[char_idx_horizontal] = '\0';
