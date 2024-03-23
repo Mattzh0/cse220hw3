@@ -279,7 +279,7 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
         free(built_word_vertical);
         return copy;
     }
-    else if (!game->is_empty && ((int)strlen(built_word_vertical) == place_count)) {
+    else if (!game->is_empty && ((int)strlen(built_word_vertical) == place_count) && existing_tiles_covered == 0) {
         free_game_state(game);
         free(built_word_horizontal);
         free(built_word_vertical);
