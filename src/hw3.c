@@ -10,10 +10,8 @@
 
 void change_size(GameState *game, int r, int c);
 int legal_word(char *word);
-void copy_game_state();
+GameState *copy_game_state(GameState *game);
 
-GameState *g;
-GameState *copy;
 FILE *words_file;
 FILE *output_file;
 
@@ -23,7 +21,7 @@ GameState* initialize_game_state(const char *filename) {
     int file_length = 0;
     char ch;
 
-    g = malloc(sizeof(GameState));
+    GameState *g = malloc(sizeof(GameState));
     g->is_empty = 1;
 
     FILE *input_file = fopen(filename, "r");
@@ -73,10 +71,11 @@ GameState* initialize_game_state(const char *filename) {
 
 GameState* place_tiles(GameState *game, int row, int col, char direction, const char *tiles, int *num_tiles_placed) {
     *num_tiles_placed = 0;
-    copy_game_state();
+    GameState *copy = copy_game_state(game);
     int tiles_len = strlen(tiles);
     const char *tiles_ref = tiles;
     int place_count = 0;
+    int existing_tiles_covered = 0;
 
     if ((row < 0) || (col < 0) || (row >= game->rows) || (col >= game->columns)) {
         free_game_state(copy);
@@ -90,6 +89,10 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
 
     if (direction == 'H') {
         for (int i = col; i <= col + tiles_len - 1; i++) {
+            if (!game->is_empty && (game->board)[row][i] == '.') {
+                free_game_state(game);
+                return copy;
+            }
             if (i >= game->columns) {
                 change_size(game, game->rows, i+1);
             }
@@ -102,6 +105,9 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
             if ((game->board)[row][i] == *tiles_ref) {
                 free(game);
                 return copy;
+            }
+            if ((game->board)[row][i] != '.') {
+                existing_tiles_covered++;
             }
             (game->board)[row][i] = *tiles_ref;
             (game->height)[row][i]++;
@@ -128,6 +134,9 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
             if ((game->board)[i][col] == *tiles_ref) {
                 free(game);
                 return(copy);
+            }
+            if ((game->board)[i][col] != '.') {
+                existing_tiles_covered++;
             }
             (game->board)[i][col] = *tiles_ref;
             (game->height)[i][col]++;
@@ -255,6 +264,20 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
             }
         }
     }
+
+    if (((int)strlen(built_word_horizontal) == tiles_len) && ((int)strlen(built_word_horizontal) == existing_tiles_covered)) {
+        free(game);
+        free(built_word_horizontal);
+        free(built_word_vertical);
+        return copy;
+    }
+    else if (((int)strlen(built_word_vertical) == tiles_len) && ((int)strlen(built_word_vertical) == existing_tiles_covered)) {
+        free(game);
+        free(built_word_horizontal);
+        free(built_word_vertical);
+        return copy;
+    }
+
     game->is_empty = 0;
     *num_tiles_placed = place_count;
     free(built_word_horizontal);
@@ -372,17 +395,28 @@ int legal_word(char *word) {
     return 0;
 }
 
-void copy_game_state() {
-    copy = malloc(sizeof(GameState));
-    copy->rows = g->rows;
-    copy->columns = g->columns;
+GameState *copy_game_state(GameState *game) {
+    GameState *copy = malloc(sizeof(GameState));
+    copy->rows = game->rows;
+    copy->columns = game->columns;
     copy->board = malloc(copy->rows * sizeof(char*));
     copy->height = malloc(copy->rows * sizeof(int*));
-    copy->is_empty = g->is_empty;
+    copy->is_empty = game->is_empty;
     for (int i = 0; i < copy->rows; i++) {
         copy->board[i] = malloc(copy->columns * sizeof(char));
-        memcpy(copy->board[i], g->board[i], copy->columns * sizeof(char));
+        memcpy(copy->board[i], game->board[i], copy->columns * sizeof(char));
         copy->height[i] = malloc(copy->columns * sizeof(int));
-        memcpy(copy->height[i], g->height[i], copy->columns * sizeof(int));
+        memcpy(copy->height[i], game->height[i], copy->columns * sizeof(int));
     }
+    return copy;
 }
+
+/* int main(void) {
+    int num = 0;
+    GameState *game = initialize_game_state("board02.txt");
+    game = place_tiles(game, 0, 0, 'H', "CAT", &num);
+    game = place_tiles(game, 0, 0, 'H', "DOG", &num);
+    save_game_state(game, "actual_output.txt");
+    
+    return 0;
+} */
