@@ -10,9 +10,9 @@
 
 void change_size(GameState *game, int r, int c);
 int legal_word(char *word);
-GameState* copy_game_state(GameState *game);
 
 GameState *g;
+GameState *copy;
 FILE *words_file;
 FILE *output_file;
 
@@ -66,11 +66,22 @@ GameState* initialize_game_state(const char *filename) {
     g->board = board_data;
     g->height = height;
 
+    copy = malloc(sizeof(GameState));
+    copy->rows = g->rows;
+    copy->columns = g->columns;
+    copy->board = malloc(copy->rows * sizeof(char*));
+    copy->height = malloc(copy->rows * sizeof(int*));
+    for (int i = 0; i < copy->rows; i++) {
+        copy->board[i] = malloc(copy->columns * sizeof(char));
+        memcpy(copy->board[i], g->board[i], copy->columns * sizeof(char));
+        copy->height[i] = malloc(copy->columns * sizeof(int));
+        memcpy(copy->height[i], g->height[i], copy->columns * sizeof(int));
+    }
+
     return g;
 }
 
 GameState* place_tiles(GameState *game, int row, int col, char direction, const char *tiles, int *num_tiles_placed) {
-    GameState *copy = copy_game_state(game);
     int tiles_len = strlen(tiles);
     const char *tiles_ref = tiles;
     int place_count = 0;
@@ -256,20 +267,6 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
         return copy;
     }
 
-    /* for (int i = 0; i < game->rows; i++) {
-        for (int j = 0; j < game->columns; j++) {
-            printf("%c", game->board[i][j]);
-        }
-        printf("\n");
-    }
-    printf("\n");
-    for (int i = 0; i < game->rows; i++) {
-        for (int j = 0; j < game->columns; j++) {
-            printf("%d", game->height[i][j]);
-        }
-        printf("\n");
-    } */
-
     *num_tiles_placed = place_count;
     free(built_word_horizontal);
     free(built_word_vertical);
@@ -378,21 +375,6 @@ int legal_word(char *word) {
     free(lower_word);
     fclose(words_file);
     return 0;
-}
-
-GameState* copy_game_state(GameState *game) {
-    GameState *copy = malloc(sizeof(GameState));
-    copy->rows = game->rows;
-    copy->columns = game->columns;
-    copy->board = malloc(copy->rows * sizeof(char*));
-    copy->height = malloc(copy->rows * sizeof(int*));
-    for (int i = 0; i < copy->rows; i++) {
-        copy->board[i] = malloc(copy->columns * sizeof(char));
-        memcpy(copy->board[i], game->board[i], copy->columns * sizeof(char));
-        copy->height[i] = malloc(copy->columns * sizeof(int));
-        memcpy(copy->height[i], game->height[i], copy->columns * sizeof(int));
-    }
-    return copy;
 }
 
 /* int main(void) {
