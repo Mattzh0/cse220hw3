@@ -83,12 +83,6 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
         return game;
     }
 
-    if (first_turn && (tiles_len < 2)) {
-        free_game_state(copy);
-        return game;
-    }
-
-    first_turn = 0;
     if (direction == 'H') {
         for (int i = col; i <= col + tiles_len - 1; i++) {
             if (i >= game->columns) {
@@ -264,6 +258,11 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
         return copy;
     }
 
+    if (first_turn && (tiles_len < 2) && (((int)strlen(built_word_horizontal) == tiles_len) || ((int)strlen(built_word_vertical) == tiles_len))) {
+        free_game_state(copy);
+        return game;
+    }
+
     /* for (int i = 0; i < game->rows; i++) {
         for (int j = 0; j < game->columns; j++) {
             printf("%c", game->board[i][j]);
@@ -278,6 +277,7 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
         printf("\n");
     } */
 
+    first_turn = 0;
     *num_tiles_placed = place_count;
     free(built_word_horizontal);
     free(built_word_vertical);
@@ -410,8 +410,7 @@ void copy_game_state() {
 
 /* int main(void) {
     int num = 0;
-    GameState *game = initialize_game_state("board04.txt");
-    place_tiles(game, 6, 11, 'H', "SNEER", &num);
-
+    GameState *game = initialize_game_state("board02.txt");
+    place_tiles(game, 0, 0, 'H', "I", &num);
     return 0;
 } */
