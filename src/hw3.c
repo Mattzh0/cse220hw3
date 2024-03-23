@@ -16,7 +16,7 @@ GameState *g;
 GameState *copy;
 FILE *words_file;
 FILE *output_file;
-int first_turn = 1;
+int empty_board = 1;
 
 GameState* initialize_game_state(const char *filename) {
     int file_height = 0;
@@ -53,6 +53,7 @@ GameState* initialize_game_state(const char *filename) {
             col = 0;
         } else {
             if (ch != '.') {
+                empty_board = 0;
                 height[row][col] = 1;
             }
             board_data[row][col] = ch;
@@ -79,6 +80,11 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
     int similarity_count = 0;
 
     if ((row < 0) || (col < 0) || (row >= game->rows) || (col >= game->columns)) {
+        free_game_state(copy);
+        return game;
+    }
+
+    if (empty_board && tiles_len < 2) {
         free_game_state(copy);
         return game;
     }
@@ -258,12 +264,7 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
         return copy;
     }
 
-    if (first_turn && (tiles_len < 2) && (((int)strlen(built_word_horizontal) == tiles_len) || ((int)strlen(built_word_vertical) == tiles_len))) {
-        free_game_state(copy);
-        return game;
-    }
-
-    /* for (int i = 0; i < game->rows; i++) {
+    for (int i = 0; i < game->rows; i++) {
         for (int j = 0; j < game->columns; j++) {
             printf("%c", game->board[i][j]);
         }
@@ -275,9 +276,8 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
             printf("%d", game->height[i][j]);
         }
         printf("\n");
-    } */
+    }
 
-    first_turn = 0;
     *num_tiles_placed = place_count;
     free(built_word_horizontal);
     free(built_word_vertical);
@@ -411,6 +411,6 @@ void copy_game_state() {
 /* int main(void) {
     int num = 0;
     GameState *game = initialize_game_state("board02.txt");
-    place_tiles(game, 0, 0, 'H', "I", &num);
+    place_tiles(game, 0, 0, 'H', "IGLOO", &num);
     return 0;
 } */
