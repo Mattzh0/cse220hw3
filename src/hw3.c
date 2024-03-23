@@ -127,7 +127,7 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
             }
 
             if (*tiles_ref == ' ') {
-                similarity_count++:
+                similarity_count++;
                 tiles_ref++;
                 continue;
             }
