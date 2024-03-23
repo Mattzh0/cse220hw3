@@ -89,11 +89,6 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
 
     if (direction == 'H') {
         for (int i = col; i <= col + tiles_len - 1; i++) {
-            /* if ((i == col) && !game->is_empty && (game->board)[row][i] == '.') {
-                free_game_state(game);
-                return copy;
-            } */
-
             if (i >= game->columns) {
                 change_size(game, game->rows, i+1);
             }
@@ -104,7 +99,7 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
             }
 
             if ((game->board)[row][i] == *tiles_ref) {
-                free(game);
+                free_game_state(game);
                 return copy;
             }
             if ((game->board)[row][i] != '.') {
@@ -133,7 +128,7 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
             }
 
             if ((game->board)[i][col] == *tiles_ref) {
-                free(game);
+                free_game_state(game);
                 return(copy);
             }
             if ((game->board)[i][col] != '.') {
@@ -257,7 +252,7 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
                 built_word_horizontal[char_idx_horizontal] = '\0';
 
                 if (!legal_word(built_word_horizontal)) {
-                    free(game);
+                    free_game_state(game);
                     free(built_word_horizontal);
                     free(built_word_vertical);
                     return copy;
@@ -267,13 +262,25 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
     }
 
     if (((int)strlen(built_word_horizontal) == place_count) && ((int)strlen(built_word_horizontal) == existing_tiles_covered)) {
-        free(game);
+        free_game_state(game);
         free(built_word_horizontal);
         free(built_word_vertical);
         return copy;
     }
     else if (((int)strlen(built_word_vertical) == place_count) && ((int)strlen(built_word_vertical) == existing_tiles_covered)) {
-        free(game);
+        free_game_state(game);
+        free(built_word_horizontal);
+        free(built_word_vertical);
+        return copy;
+    }
+    if (!game->is_empty && ((int)strlen(built_word_horizontal) == place_count) && existing_tiles_covered == 0) {
+        free_game_state(game);
+        free(built_word_horizontal);
+        free(built_word_vertical);
+        return copy;
+    }
+    else if (!game->is_empty && ((int)strlen(built_word_vertical) == place_count)) {
+        free_game_state(game);
         free(built_word_horizontal);
         free(built_word_vertical);
         return copy;
