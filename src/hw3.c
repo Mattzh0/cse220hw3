@@ -77,6 +77,7 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
     int similarity_count = 0;
 
     if ((row < 0) || (col < 0) || (row >= game->rows) || (col >= game->columns)) {
+        free(copy);
         return game;
     }
 
@@ -101,6 +102,7 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
 
             if (game->height[row][i] > 5) {
                 //implement undo later
+                free(copy);
                 return game;
             }
         }
@@ -126,11 +128,13 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
 
             if (game->height[i][col] > 5) {
                 //implement undo later
+                free(copy);
                 return game;
             }
         }
     }
     else {
+        free(copy);
         return game;
     }
 
@@ -387,7 +391,6 @@ GameState* copy_game_state(GameState *game) {
         copy->height[i] = malloc(copy->columns * sizeof(int));
         memcpy(copy->height[i], game->height[i], copy->columns * sizeof(int));
     }
-    free(game);
     return copy;
 }
 
