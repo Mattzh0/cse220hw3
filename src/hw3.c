@@ -16,13 +16,14 @@ GameState *g;
 GameState *copy;
 FILE *words_file;
 FILE *output_file;
-int empty_board = 1;
 
 GameState* initialize_game_state(const char *filename) {
     int file_height = 0;
     int file_width = 0;
     int file_length = 0;
     char ch;
+    
+    g->is_empty = 1;
 
     FILE *input_file = fopen(filename, "r");
 
@@ -53,7 +54,7 @@ GameState* initialize_game_state(const char *filename) {
             col = 0;
         } else {
             if (ch != '.') {
-                empty_board = 0;
+                g->is_empty = 0;
                 height[row][col] = 1;
             }
             board_data[row][col] = ch;
@@ -84,7 +85,7 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
         return game;
     }
 
-    if (tiles_len < 2) {
+    if (g->is_empty && tiles_len < 2) {
         free_game_state(game);
         return copy;
     }
