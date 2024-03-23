@@ -76,6 +76,7 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
     const char *tiles_ref = tiles;
     int place_count = 0;
     int existing_tiles_covered = 0;
+    int existing_tiles_used = 0;
 
     if ((row < 0) || (col < 0) || (row >= game->rows) || (col >= game->columns)) {
         free_game_state(copy);
@@ -94,6 +95,7 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
             }
 
             if (*tiles_ref == ' ') {
+                existing_tiles_used++;
                 tiles_ref++;
                 continue;
             }
@@ -123,6 +125,7 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
             }
 
             if (*tiles_ref == ' ') {
+                existing_tiles_used++;
                 tiles_ref++;
                 continue;
             }
@@ -270,7 +273,7 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
             free(built_word_vertical);
             return copy;
         }
-        if (!game->is_empty && ((int)strlen(built_word_horizontal) == place_count) && existing_tiles_covered == 0) {
+        if (!game->is_empty && ((int)strlen(built_word_horizontal) == place_count) && existing_tiles_covered == 0 && existing_tiles_used == 0) {
             free_game_state(game);
             free(built_word_horizontal);
             free(built_word_vertical);
@@ -284,7 +287,7 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
             free(built_word_vertical);
             return copy;
         }
-        if (!game->is_empty && ((int)strlen(built_word_vertical) == place_count) && existing_tiles_covered == 0) {
+        if (!game->is_empty && ((int)strlen(built_word_vertical) == place_count) && existing_tiles_covered == 0 && existing_tiles_used == 0) {
             free_game_state(game);
             free(built_word_horizontal);
             free(built_word_vertical);
@@ -426,10 +429,11 @@ GameState *copy_game_state(GameState *game) {
 }
 
 /* int main(void) {
-    int num = 0;
-    GameState *game = initialize_game_state("board02.txt");
-    game = place_tiles(game, 0, 0, 'H', "CAT", &num);
-    game = place_tiles(game, 0, 0, 'H', "DOG", &num);
+    int num_tiles_placed = 0;
+    GameState *game = initialize_game_state("board01.txt");
+    game = place_tiles(game, 2, 3, 'V', "T PMAN", &num_tiles_placed);
+    game = place_tiles(game, 2, 5, 'V', "P TAL", &num_tiles_placed);
+    game = place_tiles(game, 6, 1, 'H', "SN I", &num_tiles_placed);
     save_game_state(game, "actual_output.txt");
     
     return 0;
