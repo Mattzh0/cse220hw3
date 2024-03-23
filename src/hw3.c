@@ -10,9 +10,10 @@
 
 void change_size(GameState *game, int r, int c);
 int legal_word(char *word);
-GameState* copy_game_state();
+void copy_game_state();
 
 GameState *g;
+GameState *copy;
 FILE *words_file;
 FILE *output_file;
 
@@ -70,7 +71,7 @@ GameState* initialize_game_state(const char *filename) {
 }
 
 GameState* place_tiles(GameState *game, int row, int col, char direction, const char *tiles, int *num_tiles_placed) {
-    GameState *copy = copy_game_state(game);
+    copy_game_state();
     int tiles_len = strlen(tiles);
     const char *tiles_ref = tiles;
     int place_count = 0;
@@ -380,8 +381,8 @@ int legal_word(char *word) {
     return 0;
 }
 
-GameState* copy_game_state() {
-    GameState *copy = malloc(sizeof(GameState));
+void copy_game_state() {
+    copy = malloc(sizeof(GameState));
     copy->rows = g->rows;
     copy->columns = g->columns;
     copy->board = malloc(copy->rows * sizeof(char*));
@@ -392,7 +393,6 @@ GameState* copy_game_state() {
         copy->height[i] = malloc(copy->columns * sizeof(int));
         memcpy(copy->height[i], g->height[i], copy->columns * sizeof(int));
     }
-    return copy;
 }
 
 /* int main(void) {
