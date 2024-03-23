@@ -78,7 +78,7 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
     int similarity_count = 0;
 
     if ((row < 0) || (col < 0) || (row >= game->rows) || (col >= game->columns)) {
-        free(copy);
+        free_game_state(copy);
         return game;
     }
 
@@ -103,7 +103,7 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
 
             if (game->height[row][i] > 5) {
                 //implement undo later
-                free(copy);
+                free_game_state(copy);
                 return game;
             }
         }
@@ -129,13 +129,13 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
 
             if (game->height[i][col] > 5) {
                 //implement undo later
-                free(copy);
+                free_game_state(copy);
                 return game;
             }
         }
     }
     else {
-        free(copy);
+        free_game_state(copy);
         return game;
     }
 
@@ -158,7 +158,7 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
         built_word_horizontal[end - start + 1] = '\0';
 
         if (!legal_word(built_word_horizontal)) {
-            free(game);
+            free_game_state(game);
             free(built_word_horizontal);
             free(built_word_vertical);
             return copy;
@@ -187,7 +187,7 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
                 built_word_vertical[char_idx_vertical] = '\0';
 
                 if (!legal_word(built_word_vertical)) {
-                    free(game);
+                    free_game_state(game);
                     free(built_word_horizontal);
                     free(built_word_vertical);
                     return copy;
@@ -212,7 +212,7 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
         built_word_vertical[char_idx_vertical] = '\0';
 
         if (!legal_word(built_word_vertical)) {
-            free(game);
+            free_game_state(game);
             free(built_word_horizontal);
             free(built_word_vertical);
             return copy;
@@ -251,7 +251,7 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
     }
 
     if (similarity_count == tiles_len) {
-        free(game);
+        free_game_state(game);
         free(built_word_horizontal);
         free(built_word_vertical);
         return copy;
@@ -274,7 +274,7 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
     *num_tiles_placed = place_count;
     free(built_word_horizontal);
     free(built_word_vertical);
-    free(copy);
+    free_game_state(copy);
     return game;
 }
 
@@ -284,7 +284,13 @@ GameState* undo_place_tiles(GameState *game) {
 }
 
 void free_game_state(GameState *game) {
-    (void)game;
+    for (int i = 0; i < game->rows; i++) {
+        free(game->board[i]);
+        free(game->height[i]);
+    }
+    free(game->board);
+    free(game->height);
+    free(game);
 }
 
 void save_game_state(GameState *game, const char *filename) {
