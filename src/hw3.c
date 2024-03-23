@@ -150,8 +150,8 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
         return game;
     }
 
-    char *built_word_horizontal = malloc(64 * sizeof(char));
-    char *built_word_vertical = malloc(64 * sizeof(char));
+    char *built_word_horizontal = malloc(256 * sizeof(char));
+    char *built_word_vertical = malloc(256 * sizeof(char));
     int char_idx_horizontal = 0;
     int char_idx_vertical = 0;
     if (direction == 'H') {
@@ -261,7 +261,7 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
         }
     }
     
-    if (built_word_horizontal) {
+    /* if (built_word_horizontal) {
         if (((int)strlen(built_word_horizontal) == place_count) && ((int)strlen(built_word_horizontal) == existing_tiles_covered)) {
             free_game_state(game);
             free(built_word_horizontal);
@@ -288,7 +288,7 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
             free(built_word_vertical);
             return copy;
         }
-    }
+    } */
 
     game->is_empty = 0;
     *num_tiles_placed = place_count;
