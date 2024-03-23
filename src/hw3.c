@@ -17,6 +17,7 @@ GameState *copy;
 FILE *words_file;
 FILE *output_file;
 int empty_board = 1;
+int first_turn = 1;
 
 GameState* initialize_game_state(const char *filename) {
     int file_height = 0;
@@ -81,11 +82,6 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
     if ((row < 0) || (col < 0) || (row >= game->rows) || (col >= game->columns)) {
         free_game_state(copy);
         return game;
-    }
-
-    if (empty_board && tiles_len < 2) {
-        free_game_state(game);
-        return copy;
     }
 
     if (direction == 'H') {
@@ -256,7 +252,18 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
         }
     }
 
-    *num_tiles_placed = place_count;
+    if (empty_board && tiles_len < 2) {
+        free_game_state(game);
+        return copy;
+    }
+
+    if (first_turn == 1) {
+        *num_tiles_placed = place_count;
+    }
+    else {
+        *num_tiles_placed += place_count;
+    }
+    first_turn = 0;
     free(built_word_horizontal);
     free(built_word_vertical);
     free_game_state(copy);
@@ -385,11 +392,3 @@ void copy_game_state() {
         memcpy(copy->height[i], g->height[i], copy->columns * sizeof(int));
     }
 }
-
-/* int main(void) {
-    int num = 0;
-    GameState *game = initialize_game_state("board04.txt");
-    game = place_tiles(game, 6, 14, 'H', "ER", &num);
-    save_game_state(game, "actual_output.txt");
-    return 0;
-} */
