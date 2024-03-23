@@ -89,10 +89,11 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
 
     if (direction == 'H') {
         for (int i = col; i <= col + tiles_len - 1; i++) {
-            if (!game->is_empty && (game->board)[row][i] == '.') {
+            /* if ((i == col) && !game->is_empty && (game->board)[row][i] == '.') {
                 free_game_state(game);
                 return copy;
-            }
+            } */
+
             if (i >= game->columns) {
                 change_size(game, game->rows, i+1);
             }
@@ -265,13 +266,13 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
         }
     }
 
-    if (((int)strlen(built_word_horizontal) == tiles_len) && ((int)strlen(built_word_horizontal) == existing_tiles_covered)) {
+    if (((int)strlen(built_word_horizontal) == place_count) && ((int)strlen(built_word_horizontal) == existing_tiles_covered)) {
         free(game);
         free(built_word_horizontal);
         free(built_word_vertical);
         return copy;
     }
-    else if (((int)strlen(built_word_vertical) == tiles_len) && ((int)strlen(built_word_vertical) == existing_tiles_covered)) {
+    else if (((int)strlen(built_word_vertical) == place_count) && ((int)strlen(built_word_vertical) == existing_tiles_covered)) {
         free(game);
         free(built_word_horizontal);
         free(built_word_vertical);
