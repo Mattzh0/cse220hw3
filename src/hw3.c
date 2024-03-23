@@ -273,6 +273,7 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
     *num_tiles_placed = place_count;
     free(built_word_horizontal);
     free(built_word_vertical);
+    free(copy);
     return game;
 }
 
