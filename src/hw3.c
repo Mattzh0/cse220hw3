@@ -16,6 +16,7 @@ GameState *g;
 GameState *copy;
 FILE *words_file;
 FILE *output_file;
+int first_turn = 1;
 
 GameState* initialize_game_state(const char *filename) {
     int file_height = 0;
@@ -82,13 +83,25 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
         return game;
     }
 
+    if (first_turn && (tiles_len < 2)) {
+        free_game_state(copy);
+        return game;
+    }
+
+    first_turn = 0;
     if (direction == 'H') {
         for (int i = col; i <= col + tiles_len - 1; i++) {
+            if (game->height[row][i] == 5) {
+                free_game_state(copy);
+                return game;
+            }
+
             if (i >= game->columns) {
                 change_size(game, game->rows, i+1);
             }
 
             if (*tiles_ref == ' ') {
+                similarity_count++;
                 tiles_ref++;
                 continue;
             }
@@ -100,21 +113,21 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
             (game->height)[row][i]++;
             tiles_ref++;
             place_count++;
-
-            if (game->height[row][i] > 5) {
-                //implement undo later
-                free_game_state(copy);
-                return game;
-            }
         }
     }
     else if (direction == 'V') {
         for (int i = row; i <= row + tiles_len - 1; i++) {
+            if (game->height[i][col] == 5) {
+                free_game_state(copy);
+                return game;
+            }
+
             if (i >= game->rows) {
                 change_size(game, i+1, game->columns);
             }
 
             if (*tiles_ref == ' ') {
+                similarity_count++:
                 tiles_ref++;
                 continue;
             }
@@ -126,12 +139,6 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
             (game->height)[i][col]++;
             tiles_ref++;
             place_count++;
-
-            if (game->height[i][col] > 5) {
-                //implement undo later
-                free_game_state(copy);
-                return game;
-            }
         }
     }
     else {
