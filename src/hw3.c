@@ -12,14 +12,22 @@ void change_size(GameState *game, int r, int c);
 int legal_word(char *word);
 GameState *copy_game_state(GameState *game);
 
+Stack* create_stack();
+void push(Stack *stack, GameState *gameState);
+GameState* pop(Stack *stack);
+void free_stack(Stack *stack);
+
 FILE *words_file;
 FILE *output_file;
+Stack* undoStack = NULL;
 
 GameState* initialize_game_state(const char *filename) {
     int file_height = 0;
     int file_width = 0;
     int file_length = 0;
     char ch;
+    
+    undoStack = create_stack();
 
     GameState *g = malloc(sizeof(GameState));
     g->is_empty = 1;
@@ -294,18 +302,29 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
             return copy;
         }
     }
+    
+    push(undoStack, copy);
 
     game->is_empty = 0;
     *num_tiles_placed = place_count;
     free(built_word_horizontal);
     free(built_word_vertical);
-    free_game_state(copy);
+    //free_game_state(copy);
+
     return game;
 }
 
 GameState* undo_place_tiles(GameState *game) {
-    (void)game;
-    return NULL;
+    if (undoStack == NULL) {
+        undoStack = create_stack();
+    }
+    GameState *prevGameState = pop(undoStack);
+    if (prevGameState == NULL) {
+        return game; 
+    }
+    free_game_state(game);
+
+    return prevGameState;
 }
 
 void free_game_state(GameState *game) {
@@ -428,12 +447,55 @@ GameState *copy_game_state(GameState *game) {
     return copy;
 }
 
+Stack* create_stack() {
+    Stack *stack = malloc(sizeof(Stack));
+    stack->top = NULL;
+    return stack;
+}
+
+void push(Stack *stack, GameState *gameState) {
+    StackNode *newNode = malloc(sizeof(StackNode));
+    newNode->gameState = gameState;
+    newNode->next = stack->top;
+    stack->top = newNode;
+}
+
+GameState* pop(Stack *stack) {
+    if (stack->top == NULL) {
+        return NULL;
+    }
+    StackNode *temp = stack->top;
+    GameState *gameState = temp->gameState;
+    stack->top = stack->top->next;
+    free(temp);
+    return gameState;
+}
+
+void free_stack(Stack *stack) {
+    while (stack->top != NULL) {
+        pop(stack);
+    }
+    free(stack);
+}
+
 /* int main(void) {
     int num_tiles_placed = 0;
     GameState *game = initialize_game_state("board01.txt");
+    undoStack = create_stack();
     game = place_tiles(game, 2, 3, 'V', "T PMAN", &num_tiles_placed);
     game = place_tiles(game, 2, 5, 'V', "P TAL", &num_tiles_placed);
     game = place_tiles(game, 6, 1, 'H', "SN I", &num_tiles_placed);
+
+    char **test = undoStack->top->gameState->board;
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 10; j++) {
+            printf("%c ", test[i][j]);
+        }
+        printf("\n");
+    }
+    
+    game = undo_place_tiles(game);
+
     save_game_state(game, "actual_output.txt");
     
     return 0;
