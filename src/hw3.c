@@ -276,40 +276,46 @@ GameState* place_tiles(GameState *game, int row, int col, char direction, const 
     
     if (built_word_horizontal) {
         if (((int)strlen(built_word_horizontal) == place_count) && ((int)strlen(built_word_horizontal) == existing_tiles_covered)) {
-            free_game_state(game);
-            free(built_word_horizontal);
-            free(built_word_vertical);
-            return copy;
+            if (!legal_word(built_word_vertical)) {
+                free_game_state(game);
+                free(built_word_horizontal);
+                free(built_word_vertical);
+                return copy;
+            }
         }
         if (!game->is_empty && ((int)strlen(built_word_horizontal) == place_count) && existing_tiles_covered == 0 && existing_tiles_used == 0) {
-            free_game_state(game);
-            free(built_word_horizontal);
-            free(built_word_vertical);
-            return copy;
+            if (!legal_word(built_word_vertical)) {
+                free_game_state(game);
+                free(built_word_horizontal);
+                free(built_word_vertical);
+                return copy;
+            }
         }
     }
     if (built_word_vertical) {
         if (((int)strlen(built_word_vertical) == place_count) && ((int)strlen(built_word_vertical) == existing_tiles_covered)) {
-            free_game_state(game);
-            free(built_word_horizontal);
-            free(built_word_vertical);
-            return copy;
+            if (!legal_word(built_word_horizontal)) {
+                free_game_state(game);
+                free(built_word_horizontal);
+                free(built_word_vertical);
+                return copy;
+            }
         }
         if (!game->is_empty && ((int)strlen(built_word_vertical) == place_count) && existing_tiles_covered == 0 && existing_tiles_used == 0) {
-            free_game_state(game);
-            free(built_word_horizontal);
-            free(built_word_vertical);
-            return copy;
+            if (!legal_word(built_word_horizontal)) {
+                free_game_state(game);
+                free(built_word_horizontal);
+                free(built_word_vertical);
+                return copy;
+            }
         }
     }
     
     push(undoStack, copy);
-
     game->is_empty = 0;
     *num_tiles_placed = place_count;
     free(built_word_horizontal);
     free(built_word_vertical);
-    //free_game_state(copy);
 
     return game;
 }
@@ -401,16 +407,12 @@ void change_size(GameState *game, int r, int c) {
 
 int legal_word(char *word) {
     words_file = fopen("./tests/words.txt", "r");
-    //words_file = fopen("words.txt", "r");
-
     char *line = malloc(64 * sizeof(char));
-
     char *lower_word = malloc(strlen(word) + 1);
     for (int i = 0; word[i]; i++) {
         lower_word[i] = tolower(word[i]);
     }
     lower_word[strlen(word)] = '\0';
-
     while (fgets(line, 64, words_file)) {
         line[strcspn(line, "\n")] = '\0';
 
@@ -477,26 +479,3 @@ void free_stack(Stack *stack) {
     }
     free(stack);
 }
-
-/* int main(void) {
-    int num_tiles_placed = 0;
-    GameState *game = initialize_game_state("board01.txt");
-    undoStack = create_stack();
-    game = place_tiles(game, 2, 3, 'V', "T PMAN", &num_tiles_placed);
-    game = place_tiles(game, 2, 5, 'V', "P TAL", &num_tiles_placed);
-    game = place_tiles(game, 6, 1, 'H', "SN I", &num_tiles_placed);
-
-    char **test = undoStack->top->gameState->board;
-    for (int i = 0; i < 8; i++) {
-        for (int j = 0; j < 10; j++) {
-            printf("%c ", test[i][j]);
-        }
-        printf("\n");
-    }
-    
-    game = undo_place_tiles(game);
-
-    save_game_state(game, "actual_output.txt");
-    
-    return 0;
-} */
