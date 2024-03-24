@@ -9,6 +9,15 @@ typedef struct GameState
     int is_empty;
 } GameState;
 
+typedef struct StackNode {
+    GameState *gameState;
+    struct StackNode *next;
+} StackNode;
+
+typedef struct {
+    StackNode *top;
+} Stack;
+
 GameState* initialize_game_state(const char *filename);
 GameState* place_tiles(GameState *game, int row, int col, char direction, const char *tiles, int *num_tiles_placed);
 GameState* undo_place_tiles(GameState *game);
